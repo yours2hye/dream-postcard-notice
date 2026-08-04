@@ -172,27 +172,33 @@ h1 {
 
 /* ---------- floating search & category launcher ---------- */
 .fab {
-  position: fixed;
-  right: 20px;
-  bottom: 22px;
-  z-index: 45;
-  height: 56px;
-  padding: 0 20px 0 18px;
+  flex-shrink: 0;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
   border-radius: 999px;
   border: none;
-  background: var(--grad-start);
-  background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
-  color: #fff;
-  font-size: 21px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
+  background: #fff;
+  color: var(--grad-start);
+  font-size: 13px;
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(90,40,10,.38), 0 0 0 4px var(--paper);
-  transition: transform .12s ease, box-shadow .12s ease;
-  transform-origin: 84% 84%;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(20,10,0,.22);
+  transition: transform .15s ease, box-shadow .15s ease;
+  animation: fab-pulse 2.1s ease-in-out infinite;
 }
-.fab:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 22px rgba(90,40,10,.44), 0 0 0 4px var(--paper); }
+.fab svg { width: 15px; height: 15px; }
+.fab:hover { transform: translateY(-1px) scale(1.06); box-shadow: 0 6px 16px rgba(20,10,0,.3); animation-play-state: paused; }
+.fab:active { transform: scale(0.94); }
+.fab.panel-open { background: var(--paper-3); color: var(--accent); animation: none; }
+@keyframes fab-pulse {
+  0%, 100% { box-shadow: 0 3px 10px rgba(20,10,0,.22), 0 0 0 0 rgba(255,255,255,.65); }
+  50% { box-shadow: 0 3px 10px rgba(20,10,0,.22), 0 0 0 7px rgba(255,255,255,0); }
+}
+@media (prefers-reduced-motion: reduce) { .fab { animation: none; } }
 .fab .dot {
   position: absolute; top: 2px; right: 2px;
   width: 11px; height: 11px; border-radius: 50%;
@@ -236,8 +242,6 @@ h1 {
 
 .filter-panel {
   position: fixed;
-  right: 20px;
-  bottom: 88px;
   z-index: 44;
   width: 360px;
   max-width: calc(100vw - 40px);
@@ -493,6 +497,12 @@ footer {
         <button type="button" class="chip-nav chip-nav-right" id="chip-nav-right" aria-label="다음 카테고리 보기">&rsaquo;</button>
       </div>
       <button id="open-add" type="button" class="add-btn">+ 공지 추가</button>
+      <button id="fab" type="button" class="fab" aria-label="검색 열기" aria-expanded="false">
+  <span class="dot"></span>
+  <svg class="icon-search" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <svg class="icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  <span class="fab-label"><span class="label-search">검색</span><span class="label-close">닫기</span></span>
+</button>
     </div>
   </div>
 </header>
@@ -512,12 +522,6 @@ footer {
 @media (max-width:560px){.quicklinks{padding:0 16px;}}
 </style>
 
-<button id="fab" type="button" class="fab wiggle" aria-label="검색 열기" aria-expanded="false">
-  <span class="dot"></span>
-  <svg class="icon-search" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-  <svg class="icon-close" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
-  <span class="fab-label"><span class="label-search">검색</span><span class="label-close">닫기</span></span>
-</button>
 <div class="filter-backdrop" id="filter-backdrop"></div>
 <div class="filter-panel" id="filter-panel">
   <div class="filter-panel-head">
@@ -647,7 +651,9 @@ footer {
   syncHeaderHeight();
 
   function openPanel() {
-    fabBtn.classList.remove('wiggle');
+    var fr = fabBtn.getBoundingClientRect();
+    filterPanel.style.top = (fr.bottom + 8) + 'px';
+    filterPanel.style.right = (window.innerWidth - fr.right) + 'px';
     filterPanel.classList.add('open');
     filterBackdrop.classList.add('open');
     fabBtn.classList.add('panel-open');
